@@ -711,7 +711,7 @@ def main():
     script = [
         '#!/usr/bin/bash\n',
         r'### CREATE RPC PARTITION ###',
-        'create auth partition %s\n' % PREFIX_NAME,
+        'create auth partition %s\n' % PART,
         r'### SET DISPLAY PORT NUMBERS ###',
         'modify cli global-settings service number\n',
         snat_pool
