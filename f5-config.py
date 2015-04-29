@@ -22,7 +22,7 @@ import netaddr
 
 
 PREFIX_NAME = 'RPC'
-PART = 'Common'
+PART = 'RPC'
 
 
 SNAT_POOL = (
