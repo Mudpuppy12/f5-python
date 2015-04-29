@@ -336,15 +336,15 @@ POOL_PARTS = {
 }
 
 
-HTTP_REQUEST_IRULE = ('create ltm rule RPC_%(name)s '
+HTTP_REQUEST_IRULE = ('create ltm rule /' + PART + '/' + PREFIX_NAME +'_%(name)s '
                       'when HTTP_REQUEST { %(rule)s }')
 
 HTTP_REQUEST_RULES = [
-    {'name': 'x_forwarded_host',
+    {'name': 'X_FORWARDED_HOST',
      'rule': 'HTTP::header insert X-Forwarded-Host [HTTP:host]'},
-    {'name': 'x_forwarded_proto',
+    {'name': 'X_FORWARDED_PROTO',
      'rule': 'HTTP::header insert X-Forwarded-Proto "https"'},
-    {'name': 'x_forwarded_for',
+    {'name': 'X_FORWARDED_FOR',
      'rule': 'HTTP::header insert X-Forwarded-For [IP::client_addr]'}
 ]
 
