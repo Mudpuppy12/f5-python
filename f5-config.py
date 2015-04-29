@@ -22,74 +22,76 @@ import netaddr
 
 
 PREFIX_NAME = 'RPC'
+PART = 'Common'
+
 
 SNAT_POOL = (
     '### CREATE SNATPOOL ###\n'
-    'create ltm snatpool /RPC/RPC_SNATPOOL { members replace-all-with {'
+    'create ltm snatpool /' + PART + '/' + PREFIX_NAME + '_SNATPOOL { members replace-all-with {'
     ' %(snat_pool_addresses)s } }'
 )
 
 #Persistance Profile:
 PERSISTANCE = [
-    r'create ltm persistence source-addr /RPC/RPC_PROF_PERSIST_IP {'
+    r'create ltm persistence source-addr /' + PART + '/' + PREFIX_NAME + '_PROF_PERSIST_IP {'
     r' app-service none defaults-from /Common/source_addr'
     r' match-across-services enabled timeout 3600 }',
-    r'create ltm persistence cookie /RPC/RPC_PROF_PERSIST_COOKIE {'
+    r'create ltm persistence cookie /' + PART + '/' + PREFIX_NAME + '_PROF_PERSIST_COOKIE {'
     r' app-service none cookie-name RPC-COOKIE defaults-from /Common/cookie }''\n'
 ]
 
 MONITORS = [
-    r'create ltm monitor mysql /RPC/RPC_MON_GALERA { count 1 database'
+    r'create ltm monitor mysql /' + PART + '/' + PREFIX_NAME + '_MON_GALERA { count 1 database'
     r' information_schema debug no defaults-from mysql destination *:*'
     r' interval 3 recv big5_chinese_ci recv-column 2 recv-row 0 send "select'
     r' * from CHARACTER_SETS;" time-until-up 0 timeout 10 username haproxy }',
-    r'create ltm monitor http /RPC/RPC_MON_HTTP_KEYSTONE_ADMIN { defaults-from'
+    r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_KEYSTONE_ADMIN { defaults-from'
     r' http destination *:35357 recv "200 OK" send "HEAD /v3 HTTP/1.1\r\nHost:'
     r' rpc\r\n\r\n" }',
-    r'create ltm monitor http /RPC/RPC_MON_HTTP_NOVA_API_METADATA {'
+    r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_API_METADATA {'
     r' defaults-from http destination *:8775 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
-    r'create ltm monitor http /RPC/RPC_MON_HTTP_HORIZON { defaults-from http'
+    r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_HORIZON { defaults-from http'
     r' destination *:80 recv "302 Found" send "HEAD / HTTP/1.1\r\nHost:'
     r' rpc\r\n\r\n" }',
-    r'create ltm monitor http /RPC/RPC_MON_HTTP_NOVA_SPICE_CONSOLE {'
+    r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE {'
     r' defaults-from http destination *:6082 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
-    r'create ltm monitor https /RPC/RPC_MON_HTTPS_HORIZON_SSL { defaults-from'
+    r'create ltm monitor https /' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_HORIZON_SSL { defaults-from'
     r' https destination *:443 recv "200 OK" send "HEAD / HTTP/1.1\r\nHost:'
     r' rpc\r\n\r\n" }',
-    r'create ltm monitor https /RPC/RPC_MON_HTTPS_NOVA_SPICE_CONSOLE {'
+    r'create ltm monitor https /' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_NOVA_SPICE_CONSOLE {'
     r' defaults-from https destination *:6082 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
-    r'create ltm monitor tcp /RPC/RPC_MON_TCP_NOVA_API_EC2 { defaults-from tcp'
+    r'create ltm monitor tcp /' + PART + '/' + PREFIX_NAME + '_MON_TCP_NOVA_API_EC2 { defaults-from tcp'
     r' destination *:8773 }',
-    r'create ltm monitor tcp /RPC/RPC_MON_TCP_HEAT_API_CFN { defaults-from tcp'
+    r'create ltm monitor tcp /' + PART + '/' + PREFIX_NAME + '_MON_TCP_HEAT_API_CFN { defaults-from tcp'
     r' destination *:8000 }',
-    r'create ltm monitor tcp /RPC/RPC_MON_TCP_HEAT_API_CLOUDWATCH {'
+    r'create ltm monitor tcp /' + PART + '/' + PREFIX_NAME + '_MON_TCP_HEAT_API_CLOUDWATCH {'
     r' defaults-from tcp destination *:8003 }',
-    r'create ltm monitor tcp /RPC/RPC_MON_TCP_KIBANA { defaults-from tcp'
+    r'create ltm monitor tcp /' + PART + '/' + PREFIX_NAME + '_MON_TCP_KIBANA { defaults-from tcp'
     r' destination *:80 }',
-    r'create ltm monitor tcp /RPC/RPC_MON_TCP_KIBANA_SSL { defaults-from tcp'
+    r'create ltm monitor tcp /' + PART + '/' + PREFIX_NAME + '_MON_TCP_KIBANA_SSL { defaults-from tcp'
     r' destination *:8443 }',
-    r'create ltm monitor tcp /RPC/RPC_MON_TCP_ELASTICSEARCH { defaults-from'
+    r'create ltm monitor tcp /' + PART + '/' + PREFIX_NAME + '_MON_TCP_ELASTICSEARCH { defaults-from'
     r' tcp destination *:9200 }',
-    r'create ltm monitor http /RPC/RPC_MON_HTTP_SWIFT {'
+    r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_SWIFT {'
     r' defaults-from http destination *:8080 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
-    r'create ltm monitor http /RPC/RPC_MON_HTTP_REPO {'
+    r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_REPO {'
     r' defaults-from http destination *:80 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }'
     '\n'
 ]
 
 NODES = (
-    'create ltm node /RPC/%(node_name)s { address %(container_address)s }'
+    'create ltm node /' + PART + '/%(node_name)s { address %(container_address)s }'
 )
 
 PRIORITY_ENTRY = '{ priority-group %(priority_int)s }'
 
 POOL_NODE = {
-    'beginning': 'create ltm pool /RPC/%(pool_name)s {'
+    'beginning': 'create ltm pool /' + PART + '/%(pool_name)s {'
                  ' load-balancing-mode fastest-node members replace-all-with'
                  ' { %(nodes)s }',
     'priority': 'min-active-members 1',
@@ -97,10 +99,10 @@ POOL_NODE = {
 }
 
 VIRTUAL_ENTRIES_PARTS = {
-    'command': 'create ltm virtual /RPC/%(vs_name)s',
+    'command': 'create ltm virtual /' + PART + '/%(vs_name)s',
 }
 
-PERSIST_OPTION = 'persist replace-all-with { /RPC/RPC_PROF_PERSIST_IP }'
+PERSIST_OPTION = 'persist replace-all-with { /' + PART + '/' + PREFIX_NAME + '_PROF_PERSIST_IP }'
 
 
 END_COMMANDS = [
@@ -109,52 +111,52 @@ END_COMMANDS = [
 ]
 
 VIRTUAL_ENTRIES = (
-    'create ltm virtual /RPC/%(vs_name)s {'
+    'create ltm virtual /' + PART + '/%(vs_name)s {'
     ' destination %(internal_lb_vip_address)s:%(port)s'
     ' ip-protocol tcp mask 255.255.255.255'
-    ' pool /RPC/%(pool_name)s'
+    ' pool /' + PART + '/%(pool_name)s'
     r' profiles replace-all-with { /Common/fastL4 { } }'
     '  %(persist)s'
     ' source 0.0.0.0/0'
-    ' source-address-translation { pool /RPC/RPC_SNATPOOL type snat }'
+    ' source-address-translation { pool /' + PART + '/' + PREFIX_NAME + '_SNATPOOL type snat }'
     ' }'
 )
 
 PUB_SSL_VIRTUAL_ENTRIES = (
-    'create ltm virtual /RPC/%(vs_name)s {'
+    'create ltm virtual /' + PART + '/%(vs_name)s {'
     ' destination %(ssl_public_ip)s:%(port)s ip-protocol tcp'
-    ' pool /RPC/%(pool_name)s'
+    ' pool /' + PART + '/%(pool_name)s'
     r' profiles replace-all-with { /Common/tcp { } %(ssl_profiles)s }'
     ' %(persist)s'
-    ' source-address-translation { pool /RPC/RPC_SNATPOOL type snat }'
+    ' source-address-translation { pool /' + PART + '/' + PREFIX_NAME + '_SNATPOOL type snat }'
     ' }'
 )
 
 PUB_NONSSL_VIRTUAL_ENTRIES = (
-    'create ltm virtual /RPC/%(vs_name)s {'
+    'create ltm virtual /' + PART + '/%(vs_name)s {'
     ' destination %(ssl_public_ip)s:%(port)s ip-protocol tcp'
-    ' pool /RPC/%(pool_name)s'
+    ' pool /' + PART + '/%(pool_name)s'
     r' profiles replace-all-with { /Common/fastL4 { } }'
     ' %(persist)s'
-    ' source-address-translation { pool /RPC/RPC_SNATPOOL type snat }'
+    ' source-address-translation { pool /' + PART + '/' + PREFIX_NAME + '_SNATPOOL type snat }'
     ' }'
 )
 
 SEC_HOSTNET_VIRTUAL_ENTRIES = (
-    'create ltm virtual /RPC/RPC_LIMIT_ACCESS_TO_HOST_NET {'
+    'create ltm virtual /' + PART + '/' + PREFIX_NAME + '_LIMIT_ACCESS_TO_HOST_NET {'
     ' destination %(sec_host_net)s:0 ip-forward mask %(sec_host_netmask)s'
     r' profiles replace-all-with { /Common/fastL4 { } }'
-    'rules { /RPC/RPC_DISCARD_ALL }'
+    'rules { /' + PART + '/' + PREFIX_NAME + '_DISCARD_ALL }'
     ' translate-address disabled translate-port disabled vlans'
     ' replace-all-with { /Common/%(sec_public_vlan_name)s }'
     ' }'
 )
 
 SEC_CONTAINER_VIRTUAL_ENTRIES = (
-    'create ltm virtual /RPC/RPC_LIMIT_ACCESS_TO_CONTAINER_NET {'
+    'create ltm virtual /' + PART + '/' + PREFIX_NAME + '_LIMIT_ACCESS_TO_CONTAINER_NET {'
     ' connection-limit 1 destination %(sec_container_net)s:0 ip-forward mask'
     ' %(sec_container_netmask)s profiles replace-all-with'
-    ' { /Common/fastL4 { } } rules { /RPC/RPC_DISCARD_ALL'
+    ' { /Common/fastL4 { } } rules { /' + PART + '/' + PREFIX_NAME + '_DISCARD_ALL'
     ' } translate-address disabled translate-port disabled'
     ' }'
 )
@@ -164,7 +166,7 @@ POOL_PARTS = {
     'galera': {
         'port': 3306,
         'backend_port': 3306,
-        'mon_type': '/RPC/RPC_MON_GALERA',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_GALERA',
         'priority': True,
         'group': 'galera',
         'hosts': []
@@ -172,7 +174,7 @@ POOL_PARTS = {
     'glance_api': {
         'port': 9292,
         'backend_port': 9292,
-        'mon_type': '/RPC/RPC-MON-EXT-ENDPOINT',
+        'mon_type': '/' + PART + '/RPC-MON-EXT-ENDPOINT',
         'group': 'glance_api',
         'make_public': True,
         'hosts': []
@@ -180,14 +182,14 @@ POOL_PARTS = {
     'glance_registry': {
         'port': 9191,
         'backend_port': 9191,
-        'mon_type': '/RPC/RPC-MON-EXT-ENDPOINT',
+        'mon_type': '/' + PART + '/RPC-MON-EXT-ENDPOINT',
         'group': 'glance_registry',
         'hosts': []
     },
     'heat_api_cfn': {
         'port': 8000,
         'backend_port': 8000,
-        'mon_type': '/RPC/RPC_MON_TCP_HEAT_API_CFN',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_TCP_HEAT_API_CFN',
         'group': 'heat_api_cfn',
         'make_public': True,
         'hosts': []
@@ -195,7 +197,7 @@ POOL_PARTS = {
     'heat_api_cloudwatch': {
         'port': 8003,
         'backend_port': 8003,
-        'mon_type': '/RPC/RPC_MON_TCP_HEAT_API_CLOUDWATCH',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_TCP_HEAT_API_CLOUDWATCH',
         'group': 'heat_api_cloudwatch',
         'make_public': True,
         'hosts': []
@@ -203,7 +205,7 @@ POOL_PARTS = {
     'heat_api': {
         'port': 8004,
         'backend_port': 8004,
-        'mon_type': '/RPC/RPC-MON-EXT-ENDPOINT',
+        'mon_type': '/' + PART + '/RPC-MON-EXT-ENDPOINT',
         'group': 'heat_api',
         'make_public': True,
         'hosts': []
@@ -211,14 +213,14 @@ POOL_PARTS = {
     'keystone_admin': {
         'port': 35357,
         'backend_port': 35357,
-        'mon_type': '/RPC/RPC_MON_HTTP_KEYSTONE_ADMIN',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_KEYSTONE_ADMIN',
         'group': 'keystone',
         'hosts': []
     },
     'keystone_service': {
         'port': 5000,
         'backend_port': 5000,
-        'mon_type': '/RPC/RPC-MON-EXT-ENDPOINT',
+        'mon_type': '/' + PART + '/RPC-MON-EXT-ENDPOINT',
         'group': 'keystone',
         'make_public': True,
         'hosts': []
@@ -226,48 +228,48 @@ POOL_PARTS = {
     'neutron_server': {
         'port': 9696,
         'backend_port': 9696,
-        'mon_type': '/RPC/RPC-MON-EXT-ENDPOINT',
+        'mon_type': '/' + PART + '/RPC-MON-EXT-ENDPOINT',
         'group': 'neutron_server',
         'make_public': True,
         'hosts': []
     },
-    #'nova_api_ec2': {
-    #    'port': 8773,
-    #    'backend_port': 8773,
-    #    'mon_type': '/RPC/RPC_MON_TCP_NOVA_API_EC2',
-    #    'group': 'nova_api_ec2',
-    #    'make_public': True,
-    #    'hosts': []
-    #},
+    'nova_api_ec2': {
+        'port': 8773,
+        'backend_port': 8773,
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_TCP_NOVA_API_EC2',
+        'group': 'nova_api_os_compute',
+        'make_public': True,
+        'hosts': []
+    },
     'nova_api_metadata': {
         'port': 8775,
         'backend_port': 8775,
-        'mon_type': '/RPC/RPC_MON_HTTP_NOVA_API_METADATA',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_API_METADATA',
         'group': 'nova_api_metadata',
         'hosts': []
     },
     'nova_api_os_compute': {
         'port': 8774,
         'backend_port': 8774,
-        'mon_type': '/RPC/RPC-MON-EXT-ENDPOINT',
+        'mon_type': '/' + PART + '/RPC-MON-EXT-ENDPOINT',
         'group': 'nova_api_os_compute',
         'make_public': True,
         'hosts': []
     },
-    #'nova_spice_console': {
-    #    'port': 6082,
-    #    'backend_port': 6082,
-    #    'mon_type': '/RPC/RPC_MON_HTTP_NOVA_SPICE_CONSOLE',
-    #    'group': 'nova_spice_console',
-    #    'hosts': [],
-    #    'ssl_impossible': True,
-    #    'make_public': True,
-    #    'persist': True
-    #},
+    'nova_spice_console': {
+        'port': 6082,
+        'backend_port': 6082,
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_NOVA_SPICE_CONSOLE',
+        'group': 'nova_console',
+        'hosts': [],
+        'ssl_impossible': True,
+        'make_public': True,
+        'persist': True
+    },
     'cinder_api': {
         'port': 8776,
         'backend_port': 8776,
-        'mon_type': '/RPC/RPC-MON-EXT-ENDPOINT',
+        'mon_type': '/' + PART + '/RPC-MON-EXT-ENDPOINT',
         'group': 'cinder_api',
         'make_public': True,
         'hosts': []
@@ -275,14 +277,14 @@ POOL_PARTS = {
     'horizon': {
         'port': 80,
         'backend_port': 80,
-        'mon_type': '/RPC/RPC_MON_HTTP_HORIZON',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_HORIZON',
         'group': 'horizon',
         'hosts': [],
     },
     'horizon_ssl': {
         'port': 443,
         'backend_port': 443,
-        'mon_type': '/RPC/RPC_MON_HTTPS_HORIZON_SSL',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTPS_HORIZON_SSL',
         'group': 'horizon',
         'hosts': [],
         'make_public': True,
@@ -292,14 +294,14 @@ POOL_PARTS = {
     'elasticsearch': {
         'port': 9200,
         'backend_port': 9200,
-        'mon_type': '/RPC/RPC_MON_TCP_ELASTICSEARCH',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_TCP_ELASTICSEARCH',
         'group': 'elasticsearch',
         'hosts': []
     },
     'kibana': {
         'port': 8888,
         'backend_port': 80,
-        'mon_type': '/RPC/RPC_MON_TCP_KIBANA',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_TCP_KIBANA',
         'group': 'kibana',
         'priority': True,
         'hosts': []
@@ -307,7 +309,7 @@ POOL_PARTS = {
     'kibana_ssl': {
         'port': 8443,
         'backend_port': 8443,
-        'mon_type': '/RPC/RPC_MON_TCP_KIBANA_SSL',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_TCP_KIBANA_SSL',
         'group': 'kibana',
         'priority': True,
         'hosts': [],
@@ -318,7 +320,7 @@ POOL_PARTS = {
     'swift': {
         'port': 8080,
         'backend_port': 8080,
-        'mon_type': '/RPC/RPC_MON_HTTP_SWIFT',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_SWIFT',
         'group': 'kibana',
         'priority': True,
         'hosts': []
@@ -326,7 +328,7 @@ POOL_PARTS = {
     'repo': {
         'port': 8181,
         'backend_port': 80,
-        'mon_type': '/RPC/RPC_MON_HTTP_REPO',
+        'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_REPO',
         'group': 'kibana',
         'priority': True,
         'hosts': []
@@ -557,7 +559,7 @@ def main():
 
     commands.extend([
         '### CREATE SECURITY iRULE ###',
-        'create ltm rule /RPC/RPC_DISCARD_ALL',
+        'create ltm rule /' + PART + '/' + PREFIX_NAME + '_DISCARD_ALL',
         '   --> Copy and Paste the following between pre-included curly brackets <--',
         'when CLIENT_ACCEPTED { discard }\n',
         '### CREATE EXTERNAL MONITOR ###',
@@ -566,27 +568,27 @@ def main():
         '       cd /config/monitors/',
         '       vi RPC-MON-EXT-ENDPOINT.monitor',
         '   --> Copy and Paste the External monitor into vi <--',
-        '       create sys file external-monitor /RPC/RPC-MON-EXT-ENDPOINT { source-path file:///config/monitors/RPC-MON-EXT-ENDPOINT.monitor }',
+        '       create sys file external-monitor /' + PART + '/RPC-MON-EXT-ENDPOINT { source-path file:///config/monitors/RPC-MON-EXT-ENDPOINT.monitor }',
         '       save sys config',
-        '       create ltm monitor external /RPC/RPC-MON-EXT-ENDPOINT { interval 20 timeout 61 run /RPC/RPC-MON-EXT:-ENDPOINTi }\n'
+        '       create ltm monitor external /' + PART + '/RPC-MON-EXT-ENDPOINT { interval 20 timeout 61 run /' + PART + '/RPC-MON-EXT-ENDPOINT }\n'
     ])
     if user_args['ssl_domain_name']:
         commands.extend([
             '### UPLOAD SSL CERT KEY PAIR  ###',
             'cd /RPC',
-            'install sys crypto cert /RPC/%(ssl_domain_name)s.crt from-editor'
+            'install sys crypto cert /' + PART + '/%(ssl_domain_name)s.crt from-editor'
             % user_args,
             '   --> Copy and Paste provided domain cert for public api endpoint <--',
-            'install sys crypto key /RPC/%(ssl_domain_name)s.key from-editor'
+            'install sys crypto key /' + PART + '/%(ssl_domain_name)s.key from-editor'
             % user_args,
             '   --> Copy and Paste provided domain key for public api endpoint <--',
             'cd /Common\n',
             '### CREATE SSL PROFILES ###',
             'create ltm profile client-ssl'
-            ' /RPC/RPC_PROF_SSL_%(ssl_domain_name)s'
-            ' { cert /RPC/%(ssl_domain_name)s.crt key'
-            ' /RPC/%(ssl_domain_name)s.key defaults-from clientssl }\n'
-            'create ltm profile server-ssl /RPC/RPC_PROF_SSL_SERVER { defaults-from /Common/serverssl }\n'
+            ' /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s'
+            ' { cert /' + PART + '/%(ssl_domain_name)s.crt key'
+            ' /' + PART + '/%(ssl_domain_name)s.key defaults-from clientssl }\n'
+            'create ltm profile server-ssl /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_SERVER { defaults-from /Common/serverssl }\n'
             % user_args,
         ])
     if user_args['Superman']:
@@ -647,10 +649,10 @@ def main():
             if user_args['ssl_public_ip']:
                 if not value.get('backend_ssl'):
                     virtual_dict['ssl_profiles'] = (
-                        '/RPC/RPC_PROF_SSL_%(ssl_domain_name)s { context clientside }'
+                        '/' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s { context clientside }'
                     ) % user_args
                 else:
-                    virtual_dict['ssl_profiles'] = '/RPC/RPC_PROF_SSL_SERVER { context serverside } /RPC/RPC_PROF_SSL_%(ssl_domain_name)s { context clientside }'% user_args
+                    virtual_dict['ssl_profiles'] = '/' + PART + '/' + PREFIX_NAME + '_PROF_SSL_SERVER { context serverside } /' + PART + '/' + PREFIX_NAME + '_PROF_SSL_%(ssl_domain_name)s { context clientside }'% user_args
                 if value.get('make_public'):
                     if value.get ('ssl_impossible'):
                         virtual_dict['vs_name'] = '%s_VS_%s' % (
