@@ -231,14 +231,14 @@ POOL_PARTS = {
         'make_public': True,
         'hosts': []
     },
-    'nova_api_ec2': {
-        'port': 8773,
-        'backend_port': 8773,
-        'mon_type': '/RPC/RPC_MON_TCP_NOVA_API_EC2',
-        'group': 'nova_api_ec2',
-        'make_public': True,
-        'hosts': []
-    },
+    #'nova_api_ec2': {
+    #    'port': 8773,
+    #    'backend_port': 8773,
+    #    'mon_type': '/RPC/RPC_MON_TCP_NOVA_API_EC2',
+    #    'group': 'nova_api_ec2',
+    #    'make_public': True,
+    #    'hosts': []
+    #},
     'nova_api_metadata': {
         'port': 8775,
         'backend_port': 8775,
@@ -254,16 +254,16 @@ POOL_PARTS = {
         'make_public': True,
         'hosts': []
     },
-    'nova_spice_console': {
-        'port': 6082,
-        'backend_port': 6082,
-        'mon_type': '/RPC/RPC_MON_HTTP_NOVA_SPICE_CONSOLE',
-        'group': 'nova_spice_console',
-        'hosts': [],
-        'ssl_impossible': True,
-        'make_public': True,
-        'persist': True
-    },
+    #'nova_spice_console': {
+    #    'port': 6082,
+    #    'backend_port': 6082,
+    #    'mon_type': '/RPC/RPC_MON_HTTP_NOVA_SPICE_CONSOLE',
+    #    'group': 'nova_spice_console',
+    #    'hosts': [],
+    #    'ssl_impossible': True,
+    #    'make_public': True,
+    #    'persist': True
+    #},
     'cinder_api': {
         'port': 8776,
         'backend_port': 8776,
@@ -334,11 +334,29 @@ POOL_PARTS = {
 }
 
 
+HTTP_REQUEST_IRULE = ('create ltm rule RPC_%(name)s '
+                      'when HTTP_REQUEST { %(rule)s }')
+
+HTTP_REQUEST_RULES = [
+    {'name': 'x_forwarded_host',
+     'rule': 'HTTP::header insert X-Forwarded-Host [HTTP:host]'},
+    {'name': 'x_forwarded_proto',
+     'rule': 'HTTP::header insert X-Forwarded-Proto "https"'},
+    {'name': 'x_forwarded_for',
+     'rule': 'HTTP::header insert X-Forwarded-For [IP::client_addr]'}
+]
+
+
 def recursive_host_get(inventory, group_name, host_dict=None):
     if host_dict is None:
         host_dict = {}
 
     inventory_group = inventory.get(group_name)
+    if inventory_group is None:
+        print("group %s does not exist!" % group_name)
+        import sys
+        sys.exit(1)
+
     if 'children' in inventory_group and inventory_group['children']:
         for child in inventory_group['children']:
             recursive_host_get(
@@ -372,19 +390,19 @@ def file_find(filename, user_file=None, pass_exception=False):
 
     If no file is found the system will exit.
     The file lookup will be done in the following directories:
-      /etc/rpc_deploy/
-      $HOME/rpc_deploy/
-      $(pwd)/rpc_deploy/
+      /etc/openstack_deploy/
+      $HOME/openstack_deploy/
+      $(pwd)/openstack_deploy/
 
     :param filename: ``str``  Name of the file to find
     :param user_file: ``str`` Additional localtion to look in FIRST for a file
     """
     file_check = [
         os.path.join(
-            '/etc', 'rpc_deploy', filename
+            '/etc', 'openstack_deploy', filename
         ),
         os.path.join(
-            os.environ.get('HOME'), 'rpc_deploy', filename
+            os.environ.get('HOME'), 'openstack_deploy', filename
         ),
         os.path.join(
             os.getcwd(), filename
@@ -416,7 +434,7 @@ def args():
         '--file',
         help='Inventory file. Default: [ %(default)s ]',
         required=False,
-        default='rpc_inventory.json'
+        default='openstack_inventory.json'
     )
 
     parser.add_argument(
@@ -507,8 +525,8 @@ def args():
         '-S',
         '--Superman',
         help='Yes, its Superman ... strange visitor from another planet,'
-             'who came to Earth with powers and abilities far beyond those of mortal men!  ' 
-             'Superman ... who can change the course of mighty rivers, bend steel in his bare hands,' 
+             'who came to Earth with powers and abilities far beyond those of mortal men!  '
+             'Superman ... who can change the course of mighty rivers, bend steel in his bare hands,'
              'and who, disguised as Clark Kent, mild-mannered reporter for a great metropolitan newspaper,'
              'fights a never-ending battle for truth, justice, and the American way!',
         required=False,
@@ -536,7 +554,7 @@ def main():
     virts = []
     sslvirts = []
     pubvirts = []
-        
+
     commands.extend([
         '### CREATE SECURITY iRULE ###',
         'create ltm rule /RPC/RPC_DISCARD_ALL',
@@ -550,7 +568,7 @@ def main():
         '   --> Copy and Paste the External monitor into vi <--',
         '       create sys file external-monitor /RPC/RPC-MON-EXT-ENDPOINT { source-path file:///config/monitors/RPC-MON-EXT-ENDPOINT.monitor }',
         '       save sys config',
-        '       create ltm monitor external /RPC/RPC-MON-EXT-ENDPOINT { interval 20 timeout 61 run /RPC/RPC-MON-EXT-ENDPOINT }\n'
+        '       create ltm monitor external /RPC/RPC-MON-EXT-ENDPOINT { interval 20 timeout 61 run /RPC/RPC-MON-EXT:-ENDPOINTi }\n'
     ])
     if user_args['ssl_domain_name']:
         commands.extend([
@@ -733,6 +751,12 @@ def main():
                 'sec_container_netmask': netmask
             }
         )
+
+    # define HTTP request irules for proxy server
+    script.append('\n### CREATE PROXY SERVER REQUEST RULES ###')
+    for irule in HTTP_REQUEST_RULES:
+        script.append(HTTP_REQUEST_IRULE % irule)
+    script.append('\n')
 
     script.extend(['%s\n' % i for i in END_COMMANDS])
 
