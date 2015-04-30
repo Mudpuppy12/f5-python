@@ -14,6 +14,11 @@
 # limitations under the License.
 #
 # (c) 2014, Kevin Carter <kevin.carter@rackspace.com>
+
+# HTTP_MON_SWIFT does not work, it will return 404
+# QE-1_MON_HTTPS_HORIZON_SSL Does not work
+
+
 import argparse
 import json
 import os
