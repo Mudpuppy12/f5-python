@@ -21,8 +21,8 @@ import os
 import netaddr
 
 
-PREFIX_NAME = 'RPC'
-PART = 'RPC'
+PREFIX_NAME = 'QE-1'
+PART = 'QE-IAD3-1'
 
 
 SNAT_POOL = (
@@ -321,7 +321,7 @@ POOL_PARTS = {
         'port': 8080,
         'backend_port': 8080,
         'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_SWIFT',
-        'group': 'kibana',
+        'group': 'swift_proxy',
         'priority': True,
         'hosts': []
     },
@@ -329,7 +329,7 @@ POOL_PARTS = {
         'port': 8181,
         'backend_port': 80,
         'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_REPO',
-        'group': 'kibana',
+        'group': 'pkg_repo',
         'priority': True,
         'hosts': []
     }
@@ -354,6 +354,8 @@ def recursive_host_get(inventory, group_name, host_dict=None):
         host_dict = {}
 
     inventory_group = inventory.get(group_name)
+
+
     if inventory_group is None:
         print("group %s does not exist!" % group_name)
         import sys
