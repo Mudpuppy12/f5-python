@@ -79,7 +79,7 @@ MONITORS = [
     r' defaults-from http destination *:8080 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
     r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_REPO {'
-    r' defaults-from http destination *:80 recv "200 OK" send "HEAD /'
+    r' defaults-from http destination *:8181 recv "200 OK" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }'
     '\n'
 ]
@@ -327,7 +327,7 @@ POOL_PARTS = {
     },
     'repo': {
         'port': 8181,
-        'backend_port': 80,
+        'backend_port': 8181,
         'mon_type': '/' + PART + '/' + PREFIX_NAME + '_MON_HTTP_REPO',
         'group': 'pkg_repo',
         'priority': True,
