@@ -81,7 +81,7 @@ MONITORS = [
     r'create ltm monitor tcp /' + PART + '/' + PREFIX_NAME + '_MON_TCP_ELASTICSEARCH { defaults-from'
     r' tcp destination *:9200 }',
     r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_SWIFT {'
-    r' defaults-from http destination *:8080 recv "200 OK" send "HEAD /'
+    r' defaults-from http destination *:8080 recv "404 Not Found" send "HEAD /'
     r' HTTP/1.1\r\nHost: rpc\r\n\r\n" }',
     r'create ltm monitor http /' + PART + '/' + PREFIX_NAME + '_MON_HTTP_REPO {'
     r' defaults-from http destination *:8181 recv "200 OK" send "HEAD /'
