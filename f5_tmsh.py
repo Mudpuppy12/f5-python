@@ -57,9 +57,8 @@ def parse_args(token,args):
 
     token_words =  len(token.split())
     arg_list= args.split()
-
-
     target = arg_list[token_words].split('/')
+
     if len(target) > 1:
         partition = target[1]
         name = target[2]
@@ -75,6 +74,8 @@ def parse_args(token,args):
     subset_flag = False
     data_return = {}
     tmp = []
+
+    #print arg_list[pos:]
 
     for word in arg_list[pos:]:
 
@@ -134,7 +135,16 @@ def parse_args(token,args):
     for key in data.keys():
         if key in subsets:
             if key == 'profiles':
-                data_return[key] = [{ 'name': data[key][0]}]
+               # Hack for detecting public SSL certs
+
+               if len(data[key]) > 1:
+
+                data_return[key] = [{ 'name': data[key][0]},
+                                    { 'kind' : 'ltm:virtual:profile', 'name' : data[key][1]}
+                                    ]
+               else:
+                    data_return[key] = [{ 'name': data[key][0]}]
+
 
             if key == 'persist':
                 data_return[key] = data[key][0]
@@ -144,7 +154,6 @@ def parse_args(token,args):
 
             if key == 'members':
                data_return[key]=members_parse(data[key])
-
 
     return name,partition,data_return
 
@@ -268,7 +277,6 @@ def do_create_sys_file_external(token,args,my_f5):
 
 def do_create_virtual(token,args,my_f5):
     (name,partition,data) = parse_args(token,args)
-
     result = my_f5.create_virtual(partition,name,**data)
     print "Creating Virtual Server ... [%s] .... [%s]" % (name,status_code(result))
 
